@@ -1,2 +1,1 @@
-# pack-viruses
-pack viruses
+вы всё делайте на свой страх и риск
